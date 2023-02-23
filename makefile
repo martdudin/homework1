@@ -1,10 +1,10 @@
 all:
-	gcc -o homework1 -Wall -Wextra homework1.c read_info.c argp.c
+	gcc -g -o homework1 -Wall -Wextra homework1.c read_info.c
 
 chatty:
 	@echo Starting build
-	gcc -o homework1 -Wall -Wextra homework1.c read_info.c argp.c
+	gcc -o homework1 -Wall -Wextra homework1.c read_info.c
 	@echo Build finished
 
-no_argp:
-	gcc -o homework1 -Wall -Wextra homework1.c read_info.c
+debug:
+	gcc -g -o homework1 -Wall -Wextra homework1.c read_info.c

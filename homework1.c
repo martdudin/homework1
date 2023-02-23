@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "header.h"
 #include "read_info.h"
-//#include "argp.c"
 
 int main(int argc, char **argv)
 {
