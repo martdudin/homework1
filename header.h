@@ -18,3 +18,5 @@ static struct argp_option options[] = {
     {"noprint", 110, 0,      0, "Disable printing on screen", 0}, // 110 is ASCII for 'n'
     {"doutput", 100, 0,      0, "Disable writin the output to the file", 0}, // 100 is ASCII for 'd'
 };
+
+
