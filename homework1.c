@@ -6,8 +6,9 @@ Date: 23.02.2023
 */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include "header.h"
-#include "read_info.h"
+#include "info_manipulation.h"
 
 static char args_doc[] = "ARG1 ARG2";
 
@@ -20,13 +21,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 	switch (key)
 	{
 	case 'i':
-		arguments->output_file = arg;
+		arguments->input_file = arg;
 		break;
 	case 'h':
 		arguments->hooligans_file = arg;
 		break;
 	case 'o':
-		arguments->input_file = arg;
+		arguments->output_file = arg;
 		break;
 	case 'n':
 		arguments->noprint = 1;
@@ -34,14 +35,14 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 	case 'd':
 		arguments->disable_output = 1;
 		break;
-	case ARGP_KEY_ARG:
-		if (state->arg_num >= 2)
-		{
-			// if too many arguments
-			argp_usage(state);
-		}
-		arguments->args[state->arg_num] = arg;
-		break;
+	// case ARGP_KEY_ARG:
+	// 	if (state->arg_num >= 2)
+	// 	{
+	// 		// if too many arguments
+	// 		argp_usage(state);
+	// 	}
+	// 	arguments->args[state->arg_num] = arg;
+	// 	break;
 	default:
 		break;
 	}
@@ -57,11 +58,11 @@ int main(int argc, char **argv)
 	struct arguments arguments;
 
 	// Default values of the options
-	arguments.noprint = 0;
-	arguments.disable_output = 0;
-	arguments.input_file = "-";
-	arguments.output_file = "-";
-	arguments.hooligans_file = "-";
+	arguments.noprint = false;
+	arguments.disable_output = false;
+	arguments.input_file = DEFAULT_PENALTY_FILE;
+	arguments.output_file = "output.txt";
+	arguments.hooligans_file = DEFAULT_OWNERS_FILE;
 	
 
 	argp_parse(&argp, argc, argv, 0, 0, &arguments);
@@ -72,12 +73,12 @@ int main(int argc, char **argv)
 		printf("hooligans file: %s\n", arguments.hooligans_file);
 		printf("Prints: %s\n", arguments.noprint ? "no" : "yes");
 		printf("Output to a file: %s\n", arguments.disable_output ? "no" : "yes");
-		printf("ARG1 = %s\n", arguments.args[0]);
-		printf("ARG1 = %s\n", arguments.args[1]);
+		// printf("ARG1 = %s\n", arguments.args[0]);
+		// printf("ARG1 = %s\n", arguments.args[1]);
 	}
 	penalty test[PEOPLE_MAX];
-	ReadInfo(DEFAULT_PENALTY_FILE, DEFAULT_OWNERS_FILE, test);
+	ReadInfo(arguments.input_file, arguments.hooligans_file, test);
 	CalculateFine(test, 11);
-	PrintFines(test, 11);
+	PrintFines(arguments.output_file, test, 11, arguments.noprint, arguments.disable_output);
 	return 0;
 }

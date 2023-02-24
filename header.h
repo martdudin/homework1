@@ -29,8 +29,8 @@ static struct argp_option options[] = {
 
 struct arguments
 {
-    char *args[2];
-    int noprint, disable_output;
+    //char *args[2];
+    bool noprint, disable_output;
     char *input_file;
     char *hooligans_file;
     char *output_file;

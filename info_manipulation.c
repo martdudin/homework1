@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "header.h"
 
 void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db);
 void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int ownersLen);
 void CalculateFine(penalty *db, int penaltiesLen);
-void PrintFines(penalty *db, int penaltiesLen);
+void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no_output);
 
 void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 {
@@ -21,7 +22,8 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 	}
 	
 	fOwners = fopen(ownersInput, "r");
-	if (fPenalties == NULL)
+	printf("XD3\n");
+	if (fOwners == NULL)
 	{
 		printf("ERROR: Couldn't open the file with owners!\n");
 		exit(EXIT_FAILURE);
@@ -86,13 +88,39 @@ void CalculateFine(penalty *db, int penaltiesLen)
 	
 }
 
-void PrintFines(penalty *db, int penaltiesLen)
+void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no_output)
 {
+	FILE *fOutput;
+	fOutput = fopen(output, "w");
+	if (fOutput == NULL)
+	{
+		printf("Couldn't create the output file\n");
+		exit(EXIT_FAILURE);
+	}
+	
 	printf("XD\n");
 	for (int i = 0; i < penaltiesLen; i++)
 	{
-		printf("Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
-		printf("Fine: %f EUR\n", (db + i)->fine);
+		switch (print)
+		{
+		case false:
+			printf("Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
+			printf("Fine: %f EUR\n", (db + i)->fine);
+			break;
+		
+		default:
+			break;
+		}
+		switch (no_output)
+		{
+		case false:
+			fprintf(fOutput, "Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
+			fprintf(fOutput, "Fine: %f EUR\n", (db + i)->fine);
+			break;
+		
+		default:
+			break;
+		}
 	}
 	
 }

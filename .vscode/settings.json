@@ -35,7 +35,8 @@
   ],
   "C_Cpp_Runner.useAddressSanitizer": false,
   "editor.rulers": [
-  80, 120
+    80,
+    120
   ],
   "workbench.colorCustomizations": {
     "editorRuler.foreground": "#00ffff"
