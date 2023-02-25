@@ -105,7 +105,7 @@ void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no
 		{
 		case false:
 			printf("Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
-			printf("Fine: %f EUR\n", (db + i)->fine);
+			printf("Fine: %.2f EUR\n", (db + i)->fine);
 			break;
 		
 		default:
@@ -115,7 +115,7 @@ void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no
 		{
 		case false:
 			fprintf(fOutput, "Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
-			fprintf(fOutput, "Fine: %f EUR\n", (db + i)->fine);
+			fprintf(fOutput, "Fine: %.2f EUR\n", (db + i)->fine);
 			break;
 		
 		default:
