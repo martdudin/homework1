@@ -11,6 +11,8 @@ void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no
 
 void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 {
+	// Create a separate struct where to store the names of the hooligans before
+	// they can be assigned to a correct fine
 	penalty owners[PEOPLE_MAX];
 	FILE *fPenalties;
 	FILE *fOwners;
@@ -22,13 +24,14 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 	}
 	
 	fOwners = fopen(ownersInput, "r");
-	printf("XD3\n");
 	if (fOwners == NULL)
 	{
 		printf("ERROR: Couldn't open the file with owners!\n");
 		exit(EXIT_FAILURE);
 	}
 	
+	// Use i for iteration of the while loop and also to store how many 
+	// penalties there are
 	int i = 0;
 	while (fscanf(fPenalties, "%s %f", (db + i)->registration_number, &(db + i)->measured_speed) == 2)
 	{
@@ -39,6 +42,9 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 		i++;
 	}
 	fclose(fPenalties);
+
+	// Use j for iteration of the while loop and to also store how many car owners
+	// there are
 	int j = 0;
 	while (fscanf(fOwners, "%s %s %s", owners[j].registration_number, owners[j].first_name, owners[j].last_name) == 3)
 	{
@@ -49,23 +55,32 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 		j++;
 	}
 	fclose(fOwners);
+
+	// Call the function to match the penalties to the vehicle owners
 	CheckOwners(db, i, owners, j);
 }
 
+
+// Function that matches the penalties to the car owners
 void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int ownersLen)
 {
+	// 
 	for (int i = 0; i < penaltiesLen; i++)
 	{
-		//printf("This is the %dth iteration of the loop\n", i);
 		for (int j = 0; j < ownersLen; j++)
 		{
 			if (strcmp((penalties + i)->registration_number, (owners + j)->registration_number) == 0)
 			{
-				//printf("GOT MATCH ON j = %d which means line %d\n", j, j + 1);
 				strcpy((penalties + i)->first_name, (owners + j)->first_name);
 				strcpy((penalties + i)->last_name, (owners + j)->last_name);
 			}
 		}
+		if (strcmp((penalties + i)->first_name, "\0") == 0)
+		{
+			strcpy((penalties + i)->first_name, "Owner");
+			strcpy((penalties + i)->last_name, "unknown");	
+		}
+		
 	}
 }
 

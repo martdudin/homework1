@@ -1,7 +1,7 @@
 #include <argp.h>
 
+#define DEBUG 1
 #define ARG_DEBUG 1
-#define DEBUG 0
 
 #define NAME_MAX_LEN 50
 #define REG_NUM_MAX 7

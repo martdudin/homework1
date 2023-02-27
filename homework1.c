@@ -14,6 +14,7 @@ static char args_doc[] = "ARG1 ARG2";
 
 static char doc[] = "Argp test for homework 1";
 
+// What to do with the different options should the user select them
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
 	struct arguments *arguments = state->input;
@@ -35,14 +36,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 	case 'd':
 		arguments->disable_output = 1;
 		break;
-	// case ARGP_KEY_ARG:
-	// 	if (state->arg_num >= 2)
-	// 	{
-	// 		// if too many arguments
-	// 		argp_usage(state);
-	// 	}
-	// 	arguments->args[state->arg_num] = arg;
-	// 	break;
 	default:
 		break;
 	}
@@ -55,30 +48,24 @@ static struct argp argp = { options, parse_opt, args_doc, doc, NULL, NULL , NULL
 int main(int argc, char **argv)
 {
 	// create a struct variable where to store all the options chosen
-	struct arguments arguments;
-
-	// Default values of the options
-	arguments.noprint = false;
-	arguments.disable_output = false;
-	arguments.input_file = DEFAULT_PENALTY_FILE;
-	arguments.output_file = "output.txt";
-	arguments.hooligans_file = DEFAULT_OWNERS_FILE;
-	
+	// and set the default values
+	struct arguments arguments = {false, false, DEFAULT_PENALTY_FILE, 
+								  DEFAULT_OWNERS_FILE, "output.txt"};
 
 	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 	
+	// FOR TESTING PURPOSES
 	if(ARG_DEBUG){
 		printf("penalties file: %s\n", arguments.input_file);
 		printf("output file: %s\n", arguments.output_file);
 		printf("hooligans file: %s\n", arguments.hooligans_file);
 		printf("Prints: %s\n", arguments.noprint ? "no" : "yes");
 		printf("Output to a file: %s\n", arguments.disable_output ? "no" : "yes");
-		// printf("ARG1 = %s\n", arguments.args[0]);
-		// printf("ARG1 = %s\n", arguments.args[1]);
 	}
+
 	penalty test[PEOPLE_MAX];
 	ReadInfo(arguments.input_file, arguments.hooligans_file, test);
 	CalculateFine(test, 11);
-	PrintFines(arguments.output_file, test, 11, arguments.noprint, arguments.disable_output);
+	PrintFines(arguments.output_file, test, 12, arguments.noprint, arguments.disable_output);
 	return 0;
 }
