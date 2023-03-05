@@ -12,12 +12,12 @@ Date: 23.02.2023
 
 static char args_doc[] = "ARG1 ARG2";
 
-static char doc[] = "Argp test for homework 1";
+static char doc[] = "Find the hooligans that committed heinous crimes";
 
 // What to do with the different options should the user select them
 static error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-	struct arguments *arguments = state->input;
+	arguments *arguments = state->input;
 
 	switch (key)
 	{
@@ -49,9 +49,9 @@ int main(int argc, char **argv)
 {
 	// create a struct variable where to store all the options chosen
 	// and set the default values
-	struct arguments arguments = {false, false, DEFAULT_PENALTY_FILE, 
+	arguments arguments = {false, false, DEFAULT_PENALTY_FILE, 
 								  DEFAULT_OWNERS_FILE, "output.txt"};
-
+	// parse the arguments that the user selected
 	argp_parse(&argp, argc, argv, 0, 0, &arguments);
 	
 	// FOR TESTING PURPOSES
@@ -63,9 +63,11 @@ int main(int argc, char **argv)
 		printf("Output to a file: %s\n", arguments.disable_output ? "no" : "yes");
 	}
 
+	// Create the struct to store the info
 	penalty test[PEOPLE_MAX];
-	ReadInfo(arguments.input_file, arguments.hooligans_file, test);
-	CalculateFine(test, 11);
+	// Read the info from files
+	int nPenalties = ReadInfo(arguments.input_file, arguments.hooligans_file, test);
+	CalculateFine(test, nPenalties + 1);
 	if ((arguments.noprint == true) && (arguments.disable_output == true))
 	{
 		return 0;

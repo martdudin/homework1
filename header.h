@@ -27,10 +27,10 @@ static struct argp_option options[] = {
     { 0 }
 };
 
-struct arguments
+typedef struct
 {
     bool noprint, disable_output;
     char *input_file;
     char *hooligans_file;
     char *output_file;
-};
+}arguments;

@@ -4,24 +4,30 @@
 #include <stdbool.h>
 #include "header.h"
 
-void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db);
+int ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db);
 void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int ownersLen);
 void CalculateFine(penalty *db, int penaltiesLen);
 void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no_output);
+int ReadOwners(char *ownersInput, penalty *owners);
+int ReadPenalties(char *penaltiesInput, penalty *db);
 
-void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
+int ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
+{
+	penalty owners[PEOPLE_MAX];
+	int nPenalties = ReadPenalties(penaltiesInput, db);
+	int nOwners = ReadOwners(ownersInput, owners);
+	// Call the function to match the penalties to the vehicle owners
+	CheckOwners(db, nPenalties, owners, nOwners);
+
+	// Return the number of penalties
+	return nPenalties;
+}
+
+int ReadOwners(char *ownersInput, penalty *owners)
 {
 	// Create a separate struct where to store the names of the hooligans before
 	// they can be assigned to a correct fine
-	penalty owners[PEOPLE_MAX];
-	FILE *fPenalties;
 	FILE *fOwners;
-	fPenalties = fopen(penaltiesInput, "r");
-	if (fPenalties == NULL)
-	{
-		printf("ERROR: Couldn't open the file with penalties!\n");
-		exit(EXIT_FAILURE);
-	}
 	
 	fOwners = fopen(ownersInput, "r");
 	if (fOwners == NULL)
@@ -29,43 +35,6 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 		printf("ERROR: Couldn't open the file with owners!\n");
 		exit(EXIT_FAILURE);
 	}
-	
-	// Use i for iteration of the while loop and also to store how many 
-	// penalties there are
-	int i = 0;
-	while (fscanf(fPenalties, "%s %f", (db + i)->registration_number, &(db + i)->measured_speed) == 2)
-	{
-		// Checking if the licence plate is of the format 3 numbers followed by 
-		// 3 letters
-		for (int j = 0; j < 3; j++)
-		{
-			if (!isdigit((db + i)->registration_number[j]))
-			{
-				printf("Incorrect licence plate!\n");
-				printf("The 1st half of the plate should be numbers!\n");
-				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
-				exit(EXIT_FAILURE);
-			}
-		}
-		for (int j = 3; j < 6; j++)
-		{
-			if (isdigit((db + i)->registration_number[j]))
-			{
-				printf("Incorrect licence plate!\n");
-				printf("The 2nd half of the plate should be lettesr!\n");
-				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
-				exit(EXIT_FAILURE);
-			}
-		}
-		
-		// Only for debugging
-		if (DEBUG)
-		{
-			printf("GOT: %s %.2f\n", (db + i)->registration_number, (db + i)->measured_speed);
-		}
-		i++;
-	}
-	fclose(fPenalties);
 
 	// Use j for iteration of the while loop and to also store how many car owners
 	// there are
@@ -79,16 +48,69 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 		j++;
 	}
 	fclose(fOwners);
-
-	// Call the function to match the penalties to the vehicle owners
-	CheckOwners(db, i, owners, j);
+	return j;
 }
 
+int ReadPenalties(char *penaltiesInput, penalty *db)
+{
+	FILE *fPenalties;
+	fPenalties = fopen(penaltiesInput, "r");
+	if (fPenalties == NULL)
+	{
+		printf("ERROR: Couldn't open the file with penalties!\n");
+		exit(EXIT_FAILURE);
+	}
+	// Use i for iteration of the while loop and also to store how many 
+	// penalties there are
+	int i = 0;
+	while (fscanf(fPenalties, "%s %f", db[i].registration_number, &db[i].measured_speed) == 2)
+	{
+		// Checking if the licence plate is of the format 3 numbers followed by 
+		// 3 letters
+		for (int j = 0; j < 3; j++)
+		{
+			if (!isdigit((db + i)->registration_number[j]))
+			{
+				printf("Incorrect licence plate!\n");
+				printf("The 1st half of the plate should be numbers!\n");
+				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
+				fclose(fPenalties);
+				exit(EXIT_FAILURE);
+			}
+		}
+		for (int j = 3; j < 6; j++)
+		{
+			if (isdigit((db + i)->registration_number[j]))
+			{
+				printf("Incorrect licence plate!\n");
+				printf("The 2nd half of the plate should be lettesr!\n");
+				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
+				fclose(fPenalties);
+				exit(EXIT_FAILURE);
+			}
+		}
+		if ((db + i)->measured_speed < 0)
+		{
+			printf("Negative speed? Interesting\n");
+			printf("The corrupt field is on the %d. line of the input file!\n", i +1);
+			fclose(fPenalties);
+			exit(EXIT_FAILURE);
+		}
+		
+		// Only for debugging
+		if (DEBUG)
+		{
+			printf("GOT: %s %.2f\n", (db + i)->registration_number, (db + i)->measured_speed);
+		}
+		i++;
+	}
+	fclose(fPenalties);
+	return i;
+}
 
 // Function that matches the penalties to the car owners
 void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int ownersLen)
 {
-	// 
 	for (int i = 0; i < penaltiesLen; i++)
 	{
 		for (int j = 0; j < ownersLen; j++)
@@ -112,9 +134,11 @@ void CalculateFine(penalty *db, int penaltiesLen)
 {
 	for (int i = 0; i < penaltiesLen; i++)
 	{
+		// The penalty is only given if the speed was 97 km/h or above
 		if ((db + i)->measured_speed >= 97)
 		{
 			(db + i)->fine = ((db + i)->measured_speed - 94) * 3;
+			// The max fine possible is 190 EUR
 			if ((db + i)->fine > 190)
 			{
 				(db + i)->fine = 190;
