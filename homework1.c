@@ -66,6 +66,14 @@ int main(int argc, char **argv)
 	penalty test[PEOPLE_MAX];
 	ReadInfo(arguments.input_file, arguments.hooligans_file, test);
 	CalculateFine(test, 11);
-	PrintFines(arguments.output_file, test, 12, arguments.noprint, arguments.disable_output);
+	if ((arguments.noprint == true) && (arguments.disable_output == true))
+	{
+		return 0;
+	}
+	else
+	{
+		PrintFines(arguments.output_file, test, 12, arguments.noprint, arguments.disable_output);
+	}
+
 	return 0;
 }

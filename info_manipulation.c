@@ -35,6 +35,30 @@ void ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 	int i = 0;
 	while (fscanf(fPenalties, "%s %f", (db + i)->registration_number, &(db + i)->measured_speed) == 2)
 	{
+		// Checking if the licence plate is of the format 3 numbers followed by 
+		// 3 letters
+		for (int j = 0; j < 3; j++)
+		{
+			if (!isdigit((db + i)->registration_number[j]))
+			{
+				printf("Incorrect licence plate!\n");
+				printf("The 1st half of the plate should be numbers!\n");
+				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
+				exit(EXIT_FAILURE);
+			}
+		}
+		for (int j = 3; j < 6; j++)
+		{
+			if (isdigit((db + i)->registration_number[j]))
+			{
+				printf("Incorrect licence plate!\n");
+				printf("The 2nd half of the plate should be lettesr!\n");
+				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
+				exit(EXIT_FAILURE);
+			}
+		}
+		
+		// Only for debugging
 		if (DEBUG)
 		{
 			printf("GOT: %s %.2f\n", (db + i)->registration_number, (db + i)->measured_speed);
@@ -86,7 +110,6 @@ void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int owne
 
 void CalculateFine(penalty *db, int penaltiesLen)
 {
-	printf("XD2\n");
 	for (int i = 0; i < penaltiesLen; i++)
 	{
 		if ((db + i)->measured_speed >= 97)
@@ -95,47 +118,39 @@ void CalculateFine(penalty *db, int penaltiesLen)
 			if ((db + i)->fine > 190)
 			{
 				(db + i)->fine = 190;
-			}
-			
-		}
-		
+			}	
+		}	
 	}
-	
 }
 
 void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no_output)
 {
 	FILE *fOutput;
-	fOutput = fopen(output, "w");
-	if (fOutput == NULL)
+	if (no_output == false)
 	{
-		printf("Couldn't create the output file\n");
-		exit(EXIT_FAILURE);
+		fOutput = fopen(output, "w");
+		if (fOutput == NULL)
+		{
+			printf("Couldn't create the output file\n");
+			exit(EXIT_FAILURE);
+		}
 	}
-	
-	printf("XD\n");
+
 	for (int i = 0; i < penaltiesLen; i++)
 	{
-		switch (print)
+		if (print == false)
 		{
-		case false:
 			printf("Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
 			printf("Fine: %.2f EUR\n", (db + i)->fine);
-			break;
-		
-		default:
-			break;
 		}
-		switch (no_output)
+		if (no_output == false)
 		{
-		case false:
 			fprintf(fOutput, "Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
 			fprintf(fOutput, "Fine: %.2f EUR\n", (db + i)->fine);
-			break;
-		
-		default:
-			break;
 		}
 	}
-	
+	if (no_output == false)
+	{
+		fclose(fOutput);
+	}
 }
