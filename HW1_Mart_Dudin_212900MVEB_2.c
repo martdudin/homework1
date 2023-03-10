@@ -142,7 +142,7 @@ void CalculateFine(penalty *db, int penaltiesLen)
 		// The penalty is only given if the speed was 97 km/h or above
 		if ((db + i)->measured_speed >= 97)
 		{
-			(db + i)->fine = ((db + i)->measured_speed - 94) * 3;
+			(db + i)->fine = (int)((db + i)->measured_speed - 94) * 3;
 			// The max fine possible is 190 EUR
 			if ((db + i)->fine > 190)
 			{
