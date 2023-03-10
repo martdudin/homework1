@@ -7,8 +7,8 @@ Date: 23.02.2023
 
 #include <stdio.h>
 #include <stdbool.h>
-#include "header.h"
-#include "info_manipulation.h"
+#include "HW1_Mart_Dudin_212900MVEB.h"
+#include "HW1_Mart_Dudin_212900MVEB_2.h"
 
 int main(int argc, char **argv)
 {

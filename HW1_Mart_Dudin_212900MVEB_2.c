@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include "header.h"
+#include "HW1_Mart_Dudin_212900MVEB.h"
 
 int ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db);
 void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners,

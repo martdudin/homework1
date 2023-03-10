@@ -6,8 +6,8 @@
 #define NAME_MAX_LEN 50
 #define REG_NUM_MAX 7 // The registration number is 6 characters + '\0'
 #define PEOPLE_MAX 50
-#define DEFAULT_OWNERS_FILE "./data/car_owners.txt"
-#define DEFAULT_PENALTY_FILE "./data/violation_records.txt"
+#define DEFAULT_OWNERS_FILE "./car_owners.txt"
+#define DEFAULT_PENALTY_FILE "./violation_records.txt"
 
 typedef struct
 {
