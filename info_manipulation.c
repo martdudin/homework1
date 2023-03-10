@@ -5,14 +5,18 @@
 #include "header.h"
 
 int ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db);
-void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int ownersLen);
+void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners,
+				 int ownersLen);
 void CalculateFine(penalty *db, int penaltiesLen);
-void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no_output);
+void PrintFines(char *output, penalty *db, int penaltiesLen, bool print,
+				bool no_output);
 int ReadOwners(char *ownersInput, penalty *owners);
 int ReadPenalties(char *penaltiesInput, penalty *db);
 
+// Consolidation of all the smaller functions into a single function
 int ReadInfo(char *penaltiesInput, char *ownersInput, penalty *db)
 {
+	// Create a local struct for temporary owners' info storage
 	penalty owners[PEOPLE_MAX];
 	int nPenalties = ReadPenalties(penaltiesInput, db);
 	int nOwners = ReadOwners(ownersInput, owners);
@@ -28,23 +32,20 @@ int ReadOwners(char *ownersInput, penalty *owners)
 	// Create a separate struct where to store the names of the hooligans before
 	// they can be assigned to a correct fine
 	FILE *fOwners;
-	
+
 	fOwners = fopen(ownersInput, "r");
 	if (fOwners == NULL)
 	{
-		printf("ERROR: Couldn't open the file with owners!\n");
+		perror("Couldnt open the hooligans file");
 		exit(EXIT_FAILURE);
 	}
 
 	// Use j for iteration of the while loop and to also store how many car owners
 	// there are
 	int j = 0;
-	while (fscanf(fOwners, "%s %s %s", owners[j].registration_number, owners[j].first_name, owners[j].last_name) == 3)
+	while (fscanf(fOwners, "%s %s %s", owners[j].registration_number,
+				  owners[j].first_name, owners[j].last_name) == 3)
 	{
-		if (DEBUG)
-		{
-			printf("GOT owner: %s %s %s\n", owners[j].registration_number, owners[j].first_name, owners[j].last_name);
-		}
 		j++;
 	}
 	fclose(fOwners);
@@ -57,15 +58,17 @@ int ReadPenalties(char *penaltiesInput, penalty *db)
 	fPenalties = fopen(penaltiesInput, "r");
 	if (fPenalties == NULL)
 	{
-		printf("ERROR: Couldn't open the file with penalties!\n");
+		perror("Couldnt open the penalties file");
 		exit(EXIT_FAILURE);
 	}
-	// Use i for iteration of the while loop and also to store how many 
+
+	// Use i for iteration of the while loop and also to store how many
 	// penalties there are
 	int i = 0;
-	while (fscanf(fPenalties, "%s %f", db[i].registration_number, &db[i].measured_speed) == 2)
+	while (fscanf(fPenalties, "%s %f", (db + i)->registration_number,
+				  &(db + i)->measured_speed) == 2)
 	{
-		// Checking if the licence plate is of the format 3 numbers followed by 
+		// Checking if the licence plate is of the format 3 numbers followed by
 		// 3 letters
 		for (int j = 0; j < 3; j++)
 		{
@@ -73,7 +76,8 @@ int ReadPenalties(char *penaltiesInput, penalty *db)
 			{
 				printf("Incorrect licence plate!\n");
 				printf("The 1st half of the plate should be numbers!\n");
-				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
+				printf("The corrupt field is on the %d. line of the input file!\n",
+					   i + 1);
 				fclose(fPenalties);
 				exit(EXIT_FAILURE);
 			}
@@ -84,23 +88,20 @@ int ReadPenalties(char *penaltiesInput, penalty *db)
 			{
 				printf("Incorrect licence plate!\n");
 				printf("The 2nd half of the plate should be lettesr!\n");
-				printf("The corrupt field is on the %d. line of the input file!\n", i + 1);
+				printf("The corrupt field is on the %d. line of the input file!\n",
+					   i + 1);
 				fclose(fPenalties);
 				exit(EXIT_FAILURE);
 			}
 		}
+		// Check if the measured speed is positive
 		if ((db + i)->measured_speed < 0)
 		{
 			printf("Negative speed? Interesting\n");
-			printf("The corrupt field is on the %d. line of the input file!\n", i +1);
+			printf("The corrupt field is on the %d. line of the input file!\n",
+				   i + 1);
 			fclose(fPenalties);
 			exit(EXIT_FAILURE);
-		}
-		
-		// Only for debugging
-		if (DEBUG)
-		{
-			printf("GOT: %s %.2f\n", (db + i)->registration_number, (db + i)->measured_speed);
 		}
 		i++;
 	}
@@ -109,24 +110,28 @@ int ReadPenalties(char *penaltiesInput, penalty *db)
 }
 
 // Function that matches the penalties to the car owners
-void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners, int ownersLen)
+void CheckOwners(penalty *penalties, int penaltiesLen, penalty *owners,
+				 int ownersLen)
 {
+	// Have to loop as many times as there are penalties
 	for (int i = 0; i < penaltiesLen; i++)
 	{
+		// Have to check every owner
 		for (int j = 0; j < ownersLen; j++)
 		{
-			if (strcmp((penalties + i)->registration_number, (owners + j)->registration_number) == 0)
+			if (strcmp((penalties + i)->registration_number,
+					   (owners + j)->registration_number) == 0)
 			{
 				strcpy((penalties + i)->first_name, (owners + j)->first_name);
 				strcpy((penalties + i)->last_name, (owners + j)->last_name);
 			}
 		}
+		// If no owner was found write "Owner unknown"
 		if (strcmp((penalties + i)->first_name, "\0") == 0)
 		{
 			strcpy((penalties + i)->first_name, "Owner");
-			strcpy((penalties + i)->last_name, "unknown");	
+			strcpy((penalties + i)->last_name, "unknown");
 		}
-		
 	}
 }
 
@@ -142,12 +147,13 @@ void CalculateFine(penalty *db, int penaltiesLen)
 			if ((db + i)->fine > 190)
 			{
 				(db + i)->fine = 190;
-			}	
-		}	
+			}
+		}
 	}
 }
 
-void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no_output)
+void PrintFines(char *output, penalty *db, int penaltiesLen, bool print,
+				bool no_output)
 {
 	FILE *fOutput;
 	if (no_output == false)
@@ -155,7 +161,7 @@ void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no
 		fOutput = fopen(output, "w");
 		if (fOutput == NULL)
 		{
-			printf("Couldn't create the output file\n");
+			perror("Couldnt create/open the output file");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -164,13 +170,14 @@ void PrintFines(char *output, penalty *db, int penaltiesLen, bool print, bool no
 	{
 		if (print == false)
 		{
-			printf("Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
-			printf("Fine: %.2f EUR\n", (db + i)->fine);
+			printf("Name: %s %s, ", (db + i)->first_name, (db + i)->last_name);
+			printf("Fine: %d EUR\n", (db + i)->fine);
 		}
 		if (no_output == false)
 		{
-			fprintf(fOutput, "Name: %s %s\n", (db + i)->first_name, (db + i)->last_name);
-			fprintf(fOutput, "Fine: %.2f EUR\n", (db + i)->fine);
+			fprintf(fOutput, "Name: %s %s, ", (db + i)->first_name,
+					(db + i)->last_name);
+			fprintf(fOutput, "Fine: %d EUR\n", (db + i)->fine);
 		}
 	}
 	if (no_output == false)
